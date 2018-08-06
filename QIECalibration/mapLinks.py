@@ -22,6 +22,34 @@ from datetime import datetime
 # + : multiple numbers allowed
 hexfind = re.compile(r"0x[A-Fa-f0-9]+")
 
+facepalm = """
+........................................________
+.................................,.-............``~.,
+...........................,.-.........................-.,
+........................,/..................................:,
+.....................,?........................................\,
+.................../...........................................,}
+................./......................................,:`^`..}
+.............../...................................,:........./
+..............?.....__.............................:`........./
+............./__.(.....~-,_.....................,:`........../
+.........../(_....~,_........~,_.............-~-,`........_/
+..........{.._$;_......=,_.......-,_......./.~~-},.~;/....}
+...........((.....*~_.......=-._......;,,./`..../........./
+...,,,___.\`~,._....~.,....................`.....}......./
+............(....`=-,,.......`....................(......;_,,-
+............/.`~,......`-..........................\....../
+.............\`~.*-,................................|,./....\,__
+,,_..........}.>-._\...................................|.......`=~-,
+.....`=~-,_\_......`\,.................................
+...................`=~-,,.\,................................
+............................`:,,...........................`\.....__
+.................................`=-,...................,%`>--==``
+...................................._\..........._,-%.......`
+...............................,<`.._|_,-&``................
+
+"""
+
 #RBX = "HB1"
 #uHTR = 1
 #QI_SlotToBoard = {1:1, 2:2, 3:3, 4:4, 5:5, 6:6, 7:7, 8:8}
@@ -147,6 +175,7 @@ def mapLinks(outF = "", configFile = "cardLayout.txt", tmpDir = ".tmpMap"):
                     # Fail
                     print "ngccm server timout"
                     sys.stdout = origSTDOUT
+                    print facepalm
                     print "ngccm server timout"
                     sys.stdout = stdOutDump
                     return {}
@@ -174,6 +203,7 @@ def mapLinks(outF = "", configFile = "cardLayout.txt", tmpDir = ".tmpMap"):
                 # uHTRtool was killed by timeout
                 print "Unable to complete histo run for mapping step 1. Check uHTR %d" % uHTR
                 sys.stdout = origSTDOUT
+                print facepalm
                 print "Unable to complete histo run for mapping step 1. Check uHTR %d" % uHTR
                 sys.stdout = stdOutDump
 
@@ -220,6 +250,7 @@ def mapLinks(outF = "", configFile = "cardLayout.txt", tmpDir = ".tmpMap"):
             # Fail
             print "ngccm server timout"
             sys.stdout = origSTDOUT
+            print facepalm
             print "ngccm server timout"
             sys.stdout = stdOutDump
             return {}
@@ -232,6 +263,7 @@ def mapLinks(outF = "", configFile = "cardLayout.txt", tmpDir = ".tmpMap"):
         
         # Print error message to screen as well
         sys.stdout = origSTDOUT
+        print facepalm
         print "No cards found! Check that the ngccm server is running and ensure all cards are cabled correctly."
         sys.stdout = stdOutDump
         setDAC_multi(0) 
@@ -254,9 +286,10 @@ def mapLinks(outF = "", configFile = "cardLayout.txt", tmpDir = ".tmpMap"):
             if vals["Top"] != 8 or vals["Bot"] != 8:
                 print "Card in RM %d Slot %d has incorrectly mapped igloos: %d Top  %d Bot" % (vals["RM"], vals["Slot"], vals["Top"]/8, vals["Bot"]/8)
                 sys.stdout = origSTDOUT
+                print facepalm
                 print "Card in RM %d Slot %d has incorrectly mapped igloos: %d Top  %d Bot" % (vals["RM"], vals["Slot"], vals["Top"]/8, vals["Bot"]/8)
                 sys.stdout = stdOutDump
-        
+         
         setDAC_multi(0) 
         return {}
 
@@ -292,6 +325,7 @@ def mapLinks(outF = "", configFile = "cardLayout.txt", tmpDir = ".tmpMap"):
             # uHTRtool was killed by timeout
             print "Unable to complete histo run for mapping step 2. Check uHTR %d" % uHTR
             sys.stdout = origSTDOUT
+            print facepalm
             print "Unable to complete histo run for mapping step 2. Check uHTR %d" % uHTR
             sys.stdout = stdOutDump
             
@@ -339,6 +373,7 @@ def mapLinks(outF = "", configFile = "cardLayout.txt", tmpDir = ".tmpMap"):
             # uHTRtool was killed by timeout
             print "Unable to complete histo run for mapping step 3. Check uHTR %d" % uHTR
             sys.stdout = origSTDOUT
+            print facepalm
             print "Unable to complete histo run for mapping step 3. Check uHTR %d" % uHTR
             sys.stdout = stdOutDump
             setDAC_multi(0) 
@@ -389,6 +424,7 @@ def mapLinks(outF = "", configFile = "cardLayout.txt", tmpDir = ".tmpMap"):
     if len(problemSlots) > 0:
         pprint(histoMap)
         sys.stdout = origSTDOUT
+        print facepalm
         for rm,slot in problemSlots:
             print "Error mapping card in RM %d Slot %d, check connections on this slot" % (rm,slot)
         return {}

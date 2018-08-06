@@ -271,7 +271,7 @@ def QIECalibrationFit(_Directory, _histoList='-1', _shuntList='-1', _saveGraphs=
         shuntOutputDirectory = outputDirectory #+ "Data_%s_%s/"%(rangeMode, shuntMode)
         vals, meanvals, rmsvals, charge = ShuntScan(shuntMult=shuntMult, outputDirectory=outputDirectory, histoMap=histoMap, histoList=histoList)
 
-        pedestal_graphs_shunt[shuntMult] = makeADCvsfCgraphSepCapID(vals[0],meanvals, rmsvals, charge, histoList,qieRange=0,shuntMult=shuntMult)
+        pedestal_graphs_shunt[shuntMult] = makeADCvsfCgraphSepCapID(mean = meanvals, rms = rmsvals, charge = charge, histo_list = histoList, histoMap = histoMap,qieRange=0,shuntMult=shuntMult)
 
 
     dirStructure = outputDirectory.split('/')
@@ -320,7 +320,7 @@ def QIECalibrationFit(_Directory, _histoList='-1', _shuntList='-1', _saveGraphs=
 #           histoList =  vals[i_range].keys()
 #           histoList.sort()
 
-            graphs_shunt[i_range] = makeADCvsfCgraphSepCapID(vals[i_range],meanvals, rmsvals, charge, histoList,qieRange=i_range,shuntMult=shuntMult)
+            graphs_shunt[i_range] = makeADCvsfCgraphSepCapID(mean = meanvals, rms = rmsvals, charge = charge, histo_list = histoList, histoMap = histoMap,qieRange=i_range,shuntMult=shuntMult)
 
 #       print  Barcode_List
         #for ih in histoList:

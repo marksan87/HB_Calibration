@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+
 # Summary Plots For QIE Calibration
 # Zach Shelton
 #Located in Desktop/SummaryPlots
@@ -11,6 +12,7 @@ import os
 import sys
 import argparse
 import json
+import shutil
 from MergeDatabases import MergeDatabases
 from selectionCuts import *
 from utils import Quiet
@@ -146,8 +148,12 @@ def SummaryPlot(runAll=False, dbnames=None, uid=None, total=False, idir = None, 
     FailedOffset = []
     FailedRange = []
     #Grab File Names
-    if not os.path.exists("%sSummaryPlots"%(indir)):
-        os.makedirs("%sSummaryPlots"%(indir))
+    if not os.path.exists("%s/SummaryPlots"%(indir)):
+        os.makedirs("%s/SummaryPlots"%(indir))
+    else:
+        shutil.rmtree("%s/SummaryPlots"%(indir))
+        os.makedirs("%s/SummaryPlots"%(indir))
+
     if(runAll or total or not uid is None):
         files = glob.glob("%sqieCalibrationParameters*.db"%(indir))
     elif(len(dbnames) != 0):
@@ -172,8 +178,8 @@ def SummaryPlot(runAll=False, dbnames=None, uid=None, total=False, idir = None, 
         name = nameList[0]
         nameid = name.replace("u","")
         name = nameid.replace("'","")
-        if not os.path.exists("%sSummaryPlots/%s/ImagesOutput"%(indir,name)):
-             os.makedirs("%sSummaryPlots/%s/ImagesOutput"%(indir,name))
+        if not os.path.exists("%s/SummaryPlots/%s/ImagesOutput"%(indir,name)):
+             os.makedirs("%s/SummaryPlots/%s/ImagesOutput"%(indir,name))
         FailedCards = []
         FailedSlope =[]
         FailedOffset = []
@@ -186,7 +192,7 @@ def SummaryPlot(runAll=False, dbnames=None, uid=None, total=False, idir = None, 
             FailedCards = []
         if logoutput:
                 originalSTDOUT = sys.stdout
-                stdOutDump = open("%sSummaryPlots/SummaryPlot.stdout"%(indir), 'w+')
+                stdOutDump = open("%s/SummaryPlots/SummaryPlot.stdout"%(indir), 'w+')
                 sys.stdout = stdOutDump
             #if not os.path.exists("data/%s/Run_%s/SummaryPlots/TotalPlots"%(date, run)):
                 #os.makedirs("data/%s/Run_%s/SummaryPlots/TotalPlots"%(date, run))
@@ -354,7 +360,7 @@ def SummaryPlot(runAll=False, dbnames=None, uid=None, total=False, idir = None, 
                     histoffset[-1].Write()
                     c[-1].Update()
                     if(images):
-                        Quiet(c[-1].SaveAs)("%sSummaryPlots/%s/ImagesOutput/%s_SHUNT_%s_RANGE_%i.png"%(indir, name,name, str(sh).replace(".",""), r))
+                        Quiet(c[-1].SaveAs)("%s/SummaryPlots/%s/ImagesOutput/%s_SHUNT_%s_RANGE_%i.png"%(indir, name,name, str(sh).replace(".",""), r))
                     if(hist2D):
                         histSlopeNvSlope1[-1].Write()
                     if(shFac):
@@ -379,10 +385,10 @@ def SummaryPlot(runAll=False, dbnames=None, uid=None, total=False, idir = None, 
         rootout.Close()
         FailedCards.append({name:{'Offset':FailedOffset,'Slope':FailedSlope,'poor fit': poorfit,'Bad Mean Offset':OffsetMean,'Range Failures':FailedRange}})
         cardplaceholder = {'Result':Result,'date':date, 'run':run, 'Tester':tester, 'Comments':{'Offset':FailedOffset,'Slope':FailedSlope, 'Poor fit':poorfits,'Bad Mean Offset':OffsetMean,'Range Failures':FailedRange}}
-        file1 = open("%sSummaryPlots/%s/%s.json"%(indir,name,name),"w+")
+        file1 = open("%s/SummaryPlots/%s/%s.json"%(indir,name,name),"w+")
         json.dump(cardplaceholder, file1)
     if (adapterTest):
-        rundir = "%sSummaryPlots" %indir
+        rundir = "%s/SummaryPlots" %indir
         outdir = "adapterTests"
         os.system("mkdir -p %s/%s" % (rundir, outdir))
         c.append(TCanvas("c","c",1600,1200))
@@ -436,12 +442,12 @@ def SummaryPlot(runAll=False, dbnames=None, uid=None, total=False, idir = None, 
         loline.SetLineColor(2)
         holine = TLine(0,0,0,0)
         holine.SetLineColor(2)
-        if not os.path.exists("%sSummaryPlots"%indir):
-            os.makedirs("%sSummaryPlots"%indir)
-        if not os.path.exists("%sSummaryPlots/TotalOutput"%indir):
-            os.makedirs("%sSummaryPlots/TotalOutput"%indir)
+        if not os.path.exists("%s/SummaryPlots"%indir):
+            os.makedirs("%s/SummaryPlots"%indir)
+        if not os.path.exists("%s/SummaryPlots/TotalOutput"%indir):
+            os.makedirs("%s/SummaryPlots/TotalOutput"%indir)
             # Modify rootout change title of output ROOT file
-        rootout = TFile("%sSummaryPlots/summary_plot_total.root" %indir, "recreate")
+        rootout = TFile("%s/SummaryPlots/summary_plot_total.root" %indir, "recreate")
         for ra in bins:
             r =ra[0]
             for shu in shunts:
@@ -544,7 +550,7 @@ def SummaryPlot(runAll=False, dbnames=None, uid=None, total=False, idir = None, 
                 if(verbose):
                     print "Total Plots Shunt %.1f Range %d Finished"%(sh,r)
         if len(FailedCards) >=1:
-            outputText = open("%sSummaryPlots/Failed_Shunts_and_Ranges.txt"%indir,"w+")
+            outputText = open("%s/SummaryPlots/Failed_Shunts_and_Ranges.txt"%indir,"w+")
             pprint.pprint(FailedCards, outputText)
             outputText.close()
 
@@ -557,13 +563,11 @@ def SummaryPlot(runAll=False, dbnames=None, uid=None, total=False, idir = None, 
 
 # THIS PASS FAIL USES HARDCODED SLOPE VALUES TO DETERMINE ERRORS
 def slopeFailH(sh, r, name,slope,thshunt = .3,pct = .1):
-    from selectionCuts import *
     failure = False
     if slope<failureconds[sh][0] or slope > failureconds[sh][1]:
         failure = True
     return failure
 def XrangeFail(sh, r,xmin,xmax):
-    from selectionCuts import *
     failure = False
     if xmin<chargeRange[r][sh]['min'] or xmax > chargeRange[r][sh]['max']:
         failure = True
@@ -571,7 +575,6 @@ def XrangeFail(sh, r,xmin,xmax):
 
 
 def offsetFail(r,offset,name):
-    from selectionCuts import *
     failure= False
     if r==0:
         if (offset > -.45 or offset < -.55):
@@ -581,7 +584,6 @@ def offsetFail(r,offset,name):
         failure=True
     return failure
 def poorfit(maxra, r):
-    from selectionCuts import *
     maxr = abs(maxra)
     failure = False
     if (maxr > maxResiduals[r]):

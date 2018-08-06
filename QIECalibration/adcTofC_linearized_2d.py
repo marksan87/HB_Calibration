@@ -94,7 +94,7 @@ def cleanGraph(graph,i_range):
 
     return graph
 
-def makeADCvsfCgraphSepCapID(values,mean, rms, charge,histo_list = range(0,196), linkMap = {}, injectionCardMap = {},qieRange=0,shuntMult=1, verbose=False):
+def makeADCvsfCgraphSepCapID(mean, rms, charge,histo_list = range(0,196), histoMap = {},qieRange=0,shuntMult=1, verbose=False):
 
    
     if verbose:
@@ -110,16 +110,8 @@ def makeADCvsfCgraphSepCapID(values,mean, rms, charge,histo_list = range(0,196),
     
     highCurrent = True
     
-    #if i_range > 0 or shuntMult>1:
-    #    highCurrent = True
-    #else:
-    #    highCurrent = False
-   # print "histoList:", histo_list[0]
-   # print "values:", values
-    #lsbList = values[histo_list[0]].keys()
-    #lsbList.sort()
     for ih in histo_list:
-        channel = (ih % 16 + 1)        
+        channel = histoMap[ih]["QIE"]
             
     
         _charge = array("d",charge[i_range][ih][:-1])

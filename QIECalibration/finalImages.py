@@ -3,7 +3,7 @@ from selectionCuts import *
 import sys
 import glob
 import os
-from shutil import copyfile
+from shutil import copyfile,rmtree
 
 r.gROOT.SetBatch(True)
 r.gROOT.SetStyle("Plain")
@@ -26,10 +26,12 @@ def finalImages(dirName=""):
         
 	uid = fileName[fileName.find("fitResults_")+11:fileName.find(".root")]
 
-    
         #Create output directory if it doesn't already exist
         cardDir = os.path.join(dirName,"Submission/Card_%s"%(uid))
         outDir = os.path.join(dirName,"Submission/Card_%s/plots"%(uid))
+
+        if os.path.exists(cardDir):
+            rmtree(cardDir)
         if not os.path.exists(outDir):
             os.makedirs(outDir)
     
