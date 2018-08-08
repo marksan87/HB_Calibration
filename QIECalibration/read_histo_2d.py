@@ -232,8 +232,20 @@ def read_histo_2d(file_in="trial.root",shuntMult = 1, linkMap={}, injectionCardM
                                 print "New:", adcDist.GetMean()
                         
                         mean[i_qieRange][histNum][i_capID].append(adcDist.GetMean())
-                        rms[i_qieRange][histNum][i_capID].append(max(adcDist.GetRMS(),0.25)/N**0.5)
-                        
+#                        rms[i_qieRange][histNum][i_capID].append(max(adcDist.GetRMS(),0.25)/(N/10)**0.5)
+                        tempRMS = adcDist.GetRMS()
+                        tempADC = delinADC(adcDist.GetMean())
+                        if tempRMS < linADC(tempADC,0.1)[1]:
+#                            tempADC = delinADC(adcDist.GetMean())
+                            # if not tempADC in [0,63,64,127,128,195,196,255]:
+                                # print tempADC
+                                # print (linADC(tempADC+1)[0]-linADC(tempADC)[0])
+                                # print adcDist.GetMean(), linADC(tempADC+1)[0], linADC(tempADC)[0]
+                            _rms = (linADC(tempADC+1)[0]-linADC(tempADC)[0])/12.**0.5
+                        else:
+                            _rms = tempRMS#/(N/1000)**0.5
+
+                        rms[i_qieRange][histNum][i_capID].append(_rms)
 
                 if not goodLink: continue
         #print histo_charge                                        
