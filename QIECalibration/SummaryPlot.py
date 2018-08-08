@@ -186,6 +186,8 @@ def SummaryPlot(runAll=False, dbnames=None, uid=None, total=False, idir = None, 
         poorfits = []
         FailedRange = []
         OffsetMean = []
+        FailedIsMonotonic = []
+        
         if not uid is None:
             if name not in uid:
                  continue
@@ -211,7 +213,7 @@ def SummaryPlot(runAll=False, dbnames=None, uid=None, total=False, idir = None, 
                         continue
                     # Fetch the values of slope and offset for the corresponding shunt and range
                     #values = cursor.execute("select slope,offset from qieshuntparams where range=%i and shunt=%.1f and id = '%s';" % (r, sh,name)).fetchall()
-                    values = cursor.execute("select slope, range, offset, qie, capid, maxX,minX, id, maxResidual, (SELECT slope from qieshuntparams where id=p.id and qie=p.qie and capID=p.capID and range=p.range and shunt=1) from qieshuntparams as p where range = %i and shunt = %.1f and id = '%s';"%(r,sh,name)).fetchall()
+                    values = cursor.execute("select slope, range, offset, qie, capid, maxX,minX, id, maxResidual, isMonotonic, (SELECT slope from qieshuntparams where id=p.id and qie=p.qie and capID=p.capID and range=p.range and shunt=1) from qieshuntparams as p where range = %i and shunt = %.1f and id = '%s';"%(r,sh,name)).fetchall()
 
                 # Fetch Max and minimum values for slope of shunt
                     maxmin = cursor.execute("select max(slope),min(slope) from qieshuntparams where range=%i and shunt = %.1f and id = '%s';" % (r, sh,name)).fetchall()
@@ -300,16 +302,16 @@ def SummaryPlot(runAll=False, dbnames=None, uid=None, total=False, idir = None, 
                     # Fills the histograms with the values fetched above
                     for val in values:
                         #slope, offset = val
-                        slope, rang, offset,qie,capid ,minX,maxX, id,maxr, slSh1= val
+                        slope, rang, offset,qie,capid ,minX,maxX, _id,maxr, slSh1, _isMonotonic = val
                         if XrangeFail(sh,rang,minX,maxX):
                             FailedRange.append((sh,rang,qie,capid))
                             Result = False
-                        if slopeFailH(sh,rang,id,slope):
+                        if slopeFailH(sh,rang,_id,slope):
                             FailedSlope.append((sh,rang,qie,capid))
                             Result = False
                             if(verbose):
                                 print "Slope in CAPID %i in QIE %i in Shunt %.1f and Range %i"%(capid,qie,sh,r)
-                        elif offsetFail(rang,offset,id):
+                        elif offsetFail(rang,offset,_id):
                             FailedOffset.append((sh,rang,qie,capid))
                             Result = False
                             if(verbose):
@@ -319,6 +321,8 @@ def SummaryPlot(runAll=False, dbnames=None, uid=None, total=False, idir = None, 
                             poorfits.append((sh,rang,qie,capid))
                             if (verbose):
                                 print "Poor fitting results in CAPID %i in QIE %i in Shunt %.1f and Range %i"%(capid,qie,sh,r)
+                        if not _isMonotonic:
+                            FailedIsMonotonic.append((sh,rang,qie,capid))
                         c[-1].cd(1)
                         histshunt[-1].Fill(slope)
                         histshunt[-1].Draw()
@@ -383,8 +387,8 @@ def SummaryPlot(runAll=False, dbnames=None, uid=None, total=False, idir = None, 
                     if(verbose):
                         print "qie and capid is indicative of a failure in the mean of the Offset"
         rootout.Close()
-        FailedCards.append({name:{'Offset':FailedOffset,'Slope':FailedSlope,'poor fit': poorfit,'Bad Mean Offset':OffsetMean,'Range Failures':FailedRange}})
-        cardplaceholder = {'Result':Result,'date':date, 'run':run, 'Tester':tester, 'Comments':{'Offset':FailedOffset,'Slope':FailedSlope, 'Poor fit':poorfits,'Bad Mean Offset':OffsetMean,'Range Failures':FailedRange}}
+        FailedCards.append({name:{'Offset':FailedOffset,'Slope':FailedSlope,'poor fit': poorfit,'Bad Mean Offset':OffsetMean,'Range Failures':FailedRange,"FailIncreasing":FailedIsMonotonic}})
+        cardplaceholder = {'Result':Result,'date':date, 'run':run, 'Tester':tester, 'Comments':{'Offset':FailedOffset,'Slope':FailedSlope, 'Poor fit':poorfits,'Bad Mean Offset':OffsetMean,'Range Failures':FailedRange,'FailIncreasing':FailedIsMonotonic}}
         file1 = open("%s/SummaryPlots/%s/%s.json"%(indir,name,name),"w+")
         json.dump(cardplaceholder, file1)
     if (adapterTest):

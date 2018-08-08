@@ -52,6 +52,8 @@ def doFit_combined(graphList, saveGraph = False, qieNumber = 0, qieBarcode = "",
     maxResiduals = []
     maxCharges = []
     minCharges = []
+    monotonicities = []
+    fitChiquare = []
 #        pedestal = [0]*4
     linearizedGraphList =  []
 
@@ -91,7 +93,8 @@ def doFit_combined(graphList, saveGraph = False, qieNumber = 0, qieBarcode = "",
             maxResiduals.append([])
             minCharges.append([])
             maxCharges.append([])
-
+            monotonicities.append([])
+            fitChiquare.append([])
 
 #       if pedestal==None:
 #           pedestal = []
@@ -186,6 +189,8 @@ def doFit_combined(graphList, saveGraph = False, qieNumber = 0, qieBarcode = "",
                 x = []
                 y = []
 
+                isMonotonic = True
+
                 absResidual = []
                 for i in range(N):
                     absResidual.append((yVals[i]-fitLine.Eval(xVals[i])))
@@ -194,9 +199,26 @@ def doFit_combined(graphList, saveGraph = False, qieNumber = 0, qieBarcode = "",
                     xHigh = (xVals[i]+exVals[i])
                     residualErrors.append((eyVals[i]/max(yVals[i],0.001)))
                     x.append(xVals[i])
+
+                    try:
+                        if (yVals[i+1] - yVals[i]) < -0.1 and i+1<N:
+                            print '-' *40
+                            print '- point not increasing' 
+                            print '-' *40
+                            print "qie = %i, shunt = %i, range = %i, capID = %i"%(qieNumber, shuntMult, i_range, i_capID)
+                            print xVals[i], yVals[i]
+                            print xVals[i+1], yVals[i+1]
+                            isMonotonic = False             
+                    except IndexError:
+                        # Last point, ignore
+                        pass
+
                 maxResidual = max(absResidual, key=abs)
                 maxResiduals[-1].append(abs(maxResidual))
+                monotonicities[-1].append(isMonotonic)
+                fitChiquare[-1].append(fitLine.GetChisquare()/fitLine.GetNDF())
 
+                
                 if N > 2:
                     minCharges[-1].append(xVals[0])
                     maxCharges[-1].append(xVals[N-1])
@@ -330,7 +352,7 @@ def doFit_combined(graphList, saveGraph = False, qieNumber = 0, qieBarcode = "",
         ranges = range(4)
     else:
         ranges = range(2)  #change       
-    params = [[],[],[],[],[],[]]
+    params = [[],[],[],[],[],[],[]]
     unshunted_params = [[],[],[],[],[],[]]    
 
     for irange in ranges:
@@ -354,7 +376,7 @@ def doFit_combined(graphList, saveGraph = False, qieNumber = 0, qieBarcode = "",
             slope = fitLines[irange][icapID].GetParameter(1)
             uncertainty = fitLines[irange][icapID].GetParError(1)
 
-            params[irange].append([slope,offset,uncertainty,maxResiduals[irange][icapID],minCharges[irange][icapID],maxCharges[irange][icapID]])
+            params[irange].append([slope,offset,uncertainty,maxResiduals[irange][icapID],minCharges[irange][icapID],maxCharges[irange][icapID], monotonicities[irange][icapID], fitChiquare[irange][icapID]])
             if shuntMult==1:
                 unshunted_params[irange].append([slope,offset,uncertainty,maxResiduals[irange][icapID]])
                 

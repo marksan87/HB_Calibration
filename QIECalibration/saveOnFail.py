@@ -21,7 +21,7 @@ try:
 except NameError:
     from utils import Quiet
 
-def saveTGraph(rootFile,shuntMult,i_range,qieNumber,i_capID,maxResi,verbose=False):
+def saveTGraph(rootFile,shuntMult,i_range,qieNumber,i_capID,maxResi,isIncreasing,verbose=False):
     tGraphDir = rootFile.Get("LinadcVsCharge")
     fitLineDir = rootFile.Get("fitLines")
     fName = rootFile.GetName()
@@ -144,7 +144,9 @@ def saveTGraph(rootFile,shuntMult,i_range,qieNumber,i_capID,maxResi,verbose=Fals
     text.AddText("Slope =  %.4f +- %.4f LinADC/fC [%.4f,%.4f]" % (fitLine.GetParameter(1), fitLine.GetParError(1),failureconds[shuntMult][0],failureconds[shuntMult][1]))
     text.AddText("Offset =  %.2f +- %.2f LinADC [%.1f,%.1f]" % (fitLine.GetParameter(0), fitLine.GetParError(0),-1*failcondo[i_range][0],failcondo[i_range][0]))
     text.AddText("Max Residuals = %f [%f]"%(maxResi,maxResiduals[i_range]))
-    text.AddText("Chisquare = %e " % (fitLine.GetChisquare()))
+    text.AddText("Chisquare/NDF = %.2f " % (fitLine.GetChisquare()/fitLine.GetNDF()))
+    if not isIncreasing:
+        text.AddText("NOT INCREASING")
     text.Draw("same")
 
 
@@ -250,6 +252,9 @@ def saveOnFail(inputDir):
         for failModeRange in jsonFile['Comments']['Range Failures']:
             if failModeRange not in failModeList:
                 failModeList.append(failModeRange)
+        for failModeMonotonic in jsonFile['Comments']['FailIncreasing']:
+            if failModeMonotonic not in failModeList:
+                failModeList.append(failModeMonotonic)
 
         qieList = [x[2] for x in failModeList]
         qieCounter = Counter(qieList)
@@ -285,8 +290,8 @@ def saveOnFail(inputDir):
         for failMode in failModeList:
 
             shuntMult, i_range, qieNumber, i_capID = failMode
-            maxResi = cursor.execute("select maxResidual from qieshuntparams where shunt = %f and range = %d and qie =%d and capID =%d"%(shuntMult,i_range,qieNumber,i_capID)).fetchone()[0]
-            saveTGraph(rootFile,shuntMult,i_range,qieNumber,i_capID,maxResi)
+            maxResi, isMonotonic = cursor.execute("select maxResidual,isMonotonic from qieshuntparams where shunt = %f and range = %d and qie =%d and capID =%d"%(shuntMult,i_range,qieNumber,i_capID)).fetchone()
+            saveTGraph(rootFile,shuntMult,i_range,qieNumber,i_capID,maxResi,isMonotonic)
 
 if __name__ == '__main__':
     saveOnFail(sys.argv[1])

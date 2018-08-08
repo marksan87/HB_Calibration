@@ -240,7 +240,7 @@ def QIECalibrationFit(_Directory, _histoList='-1', _shuntList='-1', _saveGraphs=
         #cursor[uID].execute("drop table if exists qieparams")
         #cursor[uID].execute("drop table if exists qietdcparams")
 
-        cursor[uID].execute("create table if not exists qieshuntparams(id STRING, barcode STRING, qie INT, capID INT, range INT, shunt INT, Gsel INT, slope REAL, offset REAL, uncertainty REAL, maxResidual REAL, MinX REAL, MaxX REAL,QIboard INT, QIchannel INT, fiber INT, fiberCH INT, runDirectory STRING)")
+        cursor[uID].execute("create table if not exists qieshuntparams(id STRING, barcode STRING, qie INT, capID INT, range INT, shunt INT, Gsel INT, slope REAL, offset REAL, uncertainty REAL, maxResidual REAL, MinX REAL, MaxX REAL,QIboard INT, QIchannel INT, fiber INT, fiberCH INT, runDirectory STRING, isMonotonic BOOL, fitChiSquare REAL)")
 
 
 
@@ -385,8 +385,8 @@ def QIECalibrationFit(_Directory, _histoList='-1', _shuntList='-1', _saveGraphs=
                 for i_capID in range(4):
                     if shuntMult==1 or (i_range in [0,1]):
                         #print shuntMult, i_range
-                        values_shunt = (qieID, barcode, qieNum, i_capID, i_range, shuntMult,shunt_GSel[shuntMult], (params_shunt[i_range][i_capID][0]),(params_shunt[i_range][i_capID][1]),(params_shunt[i_range][i_capID][2]), (params_shunt[i_range][i_capID][3]),params_shunt[i_range][i_capID][4],params_shunt[i_range][i_capID][5], histoMap[ih]["QIboard"], histoMap[ih]["QIchannel"], histoMap[ih]["Link"], ih%8, outputDirectory)
-                        cursor[uID].execute("insert into qieshuntparams values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",values_shunt)
+                        values_shunt = (qieID, barcode, qieNum, i_capID, i_range, shuntMult,shunt_GSel[shuntMult], (params_shunt[i_range][i_capID][0]),(params_shunt[i_range][i_capID][1]),(params_shunt[i_range][i_capID][2]), (params_shunt[i_range][i_capID][3]),params_shunt[i_range][i_capID][4],params_shunt[i_range][i_capID][5], histoMap[ih]["QIboard"], histoMap[ih]["QIchannel"], histoMap[ih]["Link"], ih%8, outputDirectory, params_shunt[i_range][i_capID][6], params_shunt[i_range][i_capID][7])
+                        cursor[uID].execute("insert into qieshuntparams values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",values_shunt)
 
                     #elif ( (shuntMult in [1.5, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 11.5]) and (i_range in [2,3]) ): #change
                     #    values_shunt = (qieID, barcode, qieNum, i_capID, i_range, shuntMult, shunt_GSel[shuntMult], (unshunted_params[ih][i_range][i_capID][0]/method1ShuntFactor),(unshunted_params[ih][i_range][i_capID][1]/method1ShuntFactor),(method1ShuntFactorRMS))
