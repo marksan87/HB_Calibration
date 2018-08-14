@@ -76,6 +76,7 @@ def saveTGraph(rootFile,shuntMult,i_range,qieNumber,i_capID,maxResi,isIncreasing
     graph.GetYaxis().SetTitle("Lin ADC")
     graph.GetYaxis().SetTitleOffset(1.2)
     graph.GetXaxis().SetTitle("Charge fC")
+    graph.SetMarkerStyle(7)
     xVals = graph.GetX()
     exVals = graph.GetEX()
     yVals = graph.GetY()

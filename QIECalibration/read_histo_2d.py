@@ -224,6 +224,7 @@ def read_histo_2d(file_in="trial.root",shuntMult = 1, linkMap={}, injectionCardM
                         #if adcDist.GetBinContent(1) > 0. and adcDist.GetRMS() - mean[i_qieRange][histNum][i_capID][-1] < 0:
                         #if histo_charge[i_qieRange][histNum][i_capID].GetBinContent(ix,1) > 10. and histo_charge[i_qieRange][histNum][i_capID].GetBinContent(ix-1,1) < 0.1: 
                         if i_capID == 0 and histo_charge[i_qieRange][histNum][0].GetBinContent(ix,1) > 10. and histo_charge[i_qieRange][histNum][1].GetBinContent(ix,1) < 0.1:
+#                        if i_capID == 0 and histo_charge[i_qieRange][histNum][0].GetBinContent(ix,1) > 10. and (histo_charge[i_qieRange][histNum][0].GetBinContent(ix,1) > histo_charge[i_qieRange][histNum][0].GetBinContent(ix,2) and adcDist.GetMean()>0.5):
                             if verbose:
                                 print "Retaking data for range %d fib %d ch %d capID %d charge %d" % (i_qieRange, i_link, i_channel, i_capID, histo_charge[i_qieRange][histNum][i_capID].GetXaxis().GetBinCenter(ix))
                                 print "Old:", adcDist.GetMean()
